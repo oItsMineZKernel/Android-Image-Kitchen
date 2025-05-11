@@ -8,6 +8,10 @@ separator () {
 }
 
 quotes () {
+  echo "-- $1..."
+}
+
+noquotes () {
   echo "-- $1"
 }
 
@@ -58,7 +62,7 @@ case $1 in
   --local) shift;;
   *) cd "$aik";;
 esac;
-chmod -R 755 "$bin" "$aik/"*.sh;
+chmod -R 755 "$bin" "$aik/"mk*;
 chmod 644 "$bin/magic" "$bin/androidbootimg.magic" "$bin/boot_signer.jar" "$bin/avb/"* "$bin/chromeos/"*;
 
 if [ -z "$(ls split_img/* 2>/dev/null)" -o ! -e ramdisk ]; then
@@ -116,13 +120,13 @@ else
 fi;
 
 if [ "$original" ]; then
-  quotes "Repacking with original ramdisk...";
+  quotes "Repacking with original ramdisk";
 elif [ "$ramdiskcomp" = "empty" ]; then
   quotes "Warning: Using empty ramdisk for repack!";
   compext=.empty;
   touch ramdisk-new.cpio$compext;
 else
-  quotes "Packing Ramdisk$sumsg...";
+  quotes "Packing Ramdisk$sumsg";
   if [ "$cpiowarning" ]; then
     quotes "Warning: Using cpio 2.13 may Result in an Unusable Repack; Downgrade to 2.12 to be Safe!";
     echo " ";
@@ -160,7 +164,7 @@ else
 fi;
 
 separator
-quotes "Getting Build Information...";
+quotes "Getting Build Information";
 separator
 cd split_img;
 imgtype=`cat *-imgtype`;
@@ -245,7 +249,7 @@ case $imgtype in
       hdrver=`cat *-header_version`;     quotes "Header Version: $hdrver";
     fi;
     if [ -f *-hashtype ]; then
-      hashtype=`cat *-hashtype`;         quotes "Hashtype: $hashtype";
+      hashtype=`cat *-hashtype`;         quotes "Hash Type: $hashtype";
       hashtype="--hashtype $hashtype";
     fi;
     if [ -f *-dt ]; then
@@ -268,7 +272,7 @@ cd ..;
 if [ -f split_img/*-mtktype ]; then
   mtktype=`cat split_img/*-mtktype`;
   separator
-  quotes "Generating MTK Headers...";
+  quotes "Generating MTK Headers";
   separator
   quotes "Using Ramdisk Type: $mtktype";
   "$bin/$arch/mkmtkhdr" --kernel "$kernel" --$mtktype "$ramdisk" >/dev/null;
@@ -296,7 +300,7 @@ if [ "$imgtype" = "ELF" ] && [ ! "$header" -o ! "$repackelf" ]; then
 fi;
 
 separator
-quotes "Building Image...";
+quotes "Building Image";
 separator
 quotes "Using Format: $imgtype";
 separator
@@ -339,7 +343,7 @@ if [ -f split_img/*-sigtype ]; then
   if [ -f split_img/*-blobtype ]; then
     blobtype=`cat split_img/*-blobtype`;
   fi;
-  quotes "Signing New Image...";
+  quotes "Signing New Image";
   separator
   quotes "Using Signature: $sigtype $avbtype$avbtxt$blobtype";
   [ ! "$avbkey" ] && avbkey="$bin/avb/verity";
@@ -367,7 +371,7 @@ fi;
 
 if [ -f split_img/*-lokitype ]; then
   lokitype=`cat split_img/*-lokitype`;
-  quotes "Loki Patching New Image...";
+  quotes "Loki Patching New Image";
   separator
   quotes "Using Type: $lokitype";
   separator
@@ -385,7 +389,7 @@ if [ -f split_img/*-lokitype ]; then
     exit 1;
   fi;
 elif [ -f split_img/*-microloader.bin ]; then
-  quotes "Amonet Patching New Image...";
+  quotes "Amonet Patching New Image";
   separator
   cp -f image-new.img unamonet-new.img;
   cp -f split_img/*-microloader.bin microloader.tmp;
@@ -397,7 +401,7 @@ fi;
 
 if [ -f split_img/*-tailtype ]; then
   tailtype=`cat split_img/*-tailtype`;
-  quotes "Appending Footer...";
+  quotes "Appending Footer";
   separator
   quotes "Using Type: $tailtype";
   separator
@@ -409,12 +413,12 @@ fi;
 
 if [ "$origsize" -a -f split_img/*-origsize ]; then
   filesize=`cat split_img/*-origsize`;
-  quotes "Padding to Original Size...";
+  quotes "Padding to Original Size";
   separator
   cp -f image-new.img unpadded-new.img;
   truncate -s $filesize image-new.img;
 fi;
 
-quotes "Done!";
+noquotes "Build Image Done!";
 exit 0;
 
