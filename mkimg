@@ -18,7 +18,7 @@ noquotes () {
 abort() { quotes "Error!"; }
 
 case $1 in
-  --help) quotes "Usage: mkimg [--local] [--original] [--origsize] [--level <0-9>] [--avbkey <name>] [--forceelf]"; exit 1;
+  --help) noquotes "Usage: mkimg [--local] [--original] [--origsize] [--level <0-9>] [--avbkey <name>] [--forceelf]"; exit 1;
 esac;
 
 case $(uname -s) in
@@ -66,7 +66,7 @@ chmod -R 755 "$bin" "$aik/"mk*;
 chmod 644 "$bin/magic" "$bin/androidbootimg.magic" "$bin/boot_signer.jar" "$bin/avb/"* "$bin/chromeos/"*;
 
 if [ -z "$(ls split_img/* 2>/dev/null)" -o ! -e ramdisk ]; then
-  quotes "No Files Found to be Packed/Built.";
+  noquotes "No Files Found to be Packed/Built.";
   abort;
   exit 1;
 fi;
@@ -97,19 +97,19 @@ done;
 
 ramdiskcomp=`cat split_img/*-*ramdiskcomp 2>/dev/null`;
 if [ -z "$(ls ramdisk/* 2>/dev/null)" ] && [ ! "$ramdiskcomp" = "empty" -a ! "$original" ]; then
-  quotes "No Files Found to be Packed/Built.";
+  noquotes "No Files Found to be Packed/Built.";
   abort;
   exit 1;
 fi;
 
 separator
-quotes "Android Image Kitchen - Repack Image Script";
-quotes "By osm0sis @ xda-developers";
-quotes "Edited by oItsMineZ @ github";
+noquotes "Android Image Kitchen - Repack Image Script";
+noquotes "By osm0sis @ xda-developers";
+noquotes "Edited by oItsMineZ @ github";
 separator
 
 if [ ! -z "$(ls *-new.* 2>/dev/null)" ]; then
-  quotes "Warning: Overwriting Existing Files!";
+  noquotes "Warning: Overwriting Existing Files!";
 fi;
 rm -f "*-new.*";
 
@@ -120,15 +120,15 @@ else
 fi;
 
 if [ "$original" ]; then
-  quotes "Repacking with original ramdisk";
+  quotes "Repacking with Original Ramdisk";
 elif [ "$ramdiskcomp" = "empty" ]; then
-  quotes "Warning: Using empty ramdisk for repack!";
+  noquotes "Warning: Using Empty Ramdisk for Repack!";
   compext=.empty;
   touch ramdisk-new.cpio$compext;
 else
   quotes "Packing Ramdisk$sumsg";
   if [ "$cpiowarning" ]; then
-    quotes "Warning: Using cpio 2.13 may Result in an Unusable Repack; Downgrade to 2.12 to be Safe!";
+    noquotes "Warning: Using cpio 2.13 may Result in an Unusable Repack; Downgrade to 2.12 to be Safe!";
     echo " ";
   fi;
   if [ -z "$level" ]; then
@@ -137,7 +137,7 @@ else
       lz4*) level=-9;;
     esac;
   fi;
-  quotes "Using Compression: $ramdiskcomp$lvltxt";
+  noquotes "Using Compression: $ramdiskcomp$lvltxt";
   repackcmd="$ramdiskcomp $level";
   compext=$ramdiskcomp;
   case $ramdiskcomp in
@@ -173,93 +173,93 @@ case $imgtype in
   AOSP_VNDR) vendor=vendor_;;
   *)
     if [ -f *-kernel ]; then
-      kernel=`ls *-kernel`;              quotes "Kernel: $kernel";
+      kernel=`ls *-kernel`;              noquotes "Kernel: $kernel";
       kernel="split_img/$kernel";
     fi;
   ;;
 esac;
 if [ "$original" ]; then
-  ramdisk=`ls *-*ramdisk.cpio*`;         quotes "${vendor}Ramdisk: $ramdisk";
+  ramdisk=`ls *-*ramdisk.cpio*`;         noquotes "${vendor}Ramdisk: $ramdisk";
   ramdisk="split_img/$ramdisk";
 else
   ramdisk="ramdisk-new.cpio$compext";
 fi;
 case $imgtype in
-  KRNL) rsz=$(wc -c < ../"$ramdisk");    quotes "Ramdisk Size: $rsz";;
-  OSIP)                                  quotes "CMDline: $(cat *-*cmdline)";;
+  KRNL) rsz=$(wc -c < ../"$ramdisk");    noquotes "Ramdisk Size: $rsz";;
+  OSIP)                                  noquotes "CMDline: $(cat *-*cmdline)";;
   U-Boot)
-    name=`cat *-name`;                   quotes "Name: $name";
+    name=`cat *-name`;                   noquotes "Name: $name";
     uarch=`cat *-arch`;
     os=`cat *-os`;
     type=`cat *-type`;
-    comp=`cat *-comp`;                   quotes "Type: $uarch $os $type ($comp)";
+    comp=`cat *-comp`;                   noquotes "Type: $uarch $os $type ($comp)";
     [ "$comp" = "uncompressed" ] && comp=none;
-    addr=`cat *-addr`;                   quotes "Load ADDR: $addr";
-    ep=`cat *-ep`;                       quotes "Entry Point: $ep";
+    addr=`cat *-addr`;                   noquotes "Load ADDR: $addr";
+    ep=`cat *-ep`;                       noquotes "Entry Point: $ep";
   ;;
   *)
     if [ -f *-second ]; then
-      second=`ls *-second`;              quotes "Second: $second";
+      second=`ls *-second`;              noquotes "Second: $second";
       second=(--second "split_img/$second");
     fi;
     if [ -f *-dtb ]; then
-      dtb=`ls *-dtb`;                    quotes "DTB: $dtb";
+      dtb=`ls *-dtb`;                    noquotes "DTB: $dtb";
       dtb=(--dtb "split_img/$dtb");
     fi;
     if [ -f *-recovery_dtbo ]; then
-      recoverydtbo=`ls *-recovery_dtbo`; quotes "Recovery DTBO: $recoverydtbo";
+      recoverydtbo=`ls *-recovery_dtbo`; noquotes "Recovery DTBO: $recoverydtbo";
       recoverydtbo=(--recovery_dtbo "split_img/$recoverydtbo");
     fi;
     if [ -f *-*cmdline ]; then
       cmdname=`ls *-*cmdline`;
-      cmdline=`cat *-*cmdline`;          quotes "${vendor}CMDline: $cmdline";
+      cmdline=`cat *-*cmdline`;          noquotes "${vendor}CMDline: $cmdline";
       cmd=("split_img/$cmdname"@cmdline);
     fi;
     if [ -f *-board ]; then
-      board=`cat *-board`;               quotes "Board: $board";
+      board=`cat *-board`;               noquotes "Board: $board";
     fi;
     if [ -f *-base ]; then
-      base=`cat *-base`;                 quotes "Base: $base";
+      base=`cat *-base`;                 noquotes "Base: $base";
     fi;
     if [ -f *-pagesize ]; then
-      pagesize=`cat *-pagesize`;         quotes "Page Size: $pagesize";
+      pagesize=`cat *-pagesize`;         noquotes "Page Size: $pagesize";
     fi;
     if [ -f *-kernel_offset ]; then
-      kerneloff=`cat *-kernel_offset`;   quotes "Kernel Offset: $kerneloff";
+      kerneloff=`cat *-kernel_offset`;   noquotes "Kernel Offset: $kerneloff";
     fi;
     if [ -f *-ramdisk_offset ]; then
-      ramdiskoff=`cat *-ramdisk_offset`; quotes "Ramdisk Offset: $ramdiskoff";
+      ramdiskoff=`cat *-ramdisk_offset`; noquotes "Ramdisk Offset: $ramdiskoff";
     fi;
     if [ -f *-second_offset ]; then
-      secondoff=`cat *-second_offset`;   quotes "Second Offset: $secondoff";
+      secondoff=`cat *-second_offset`;   noquotes "Second Offset: $secondoff";
     fi;
     if [ -f *-tags_offset ]; then
-      tagsoff=`cat *-tags_offset`;       quotes "Tags Offset: $tagsoff";
+      tagsoff=`cat *-tags_offset`;       noquotes "Tags Offset: $tagsoff";
     fi;
     if [ -f *-dtb_offset ]; then
-      dtboff=`cat *-dtb_offset`;         quotes "DTB Offset: $dtboff";
+      dtboff=`cat *-dtb_offset`;         noquotes "DTB Offset: $dtboff";
     fi;
     if [ -f *-os_version ]; then
-      osver=`cat *-os_version`;          quotes "OS Version: $osver";
+      osver=`cat *-os_version`;          noquotes "OS Version: $osver";
     fi;
     if [ -f *-os_patch_level ]; then
-      oslvl=`cat *-os_patch_level`;      quotes "OS Patch Level: $oslvl";
+      oslvl=`cat *-os_patch_level`;      noquotes "OS Patch Level: $oslvl";
     fi;
     if [ -f *-header_version ]; then
-      hdrver=`cat *-header_version`;     quotes "Header Version: $hdrver";
+      hdrver=`cat *-header_version`;     noquotes "Header Version: $hdrver";
     fi;
     if [ -f *-hashtype ]; then
-      hashtype=`cat *-hashtype`;         quotes "Hash Type: $hashtype";
+      hashtype=`cat *-hashtype`;         noquotes "Hash Type: $hashtype";
       hashtype="--hashtype $hashtype";
     fi;
     if [ -f *-dt ]; then
       dttype=`cat *-dttype`;
-      dt=`ls *-dt`;                      quotes "DT: $dt";
+      dt=`ls *-dt`;                      noquotes "DT: $dt";
       rpm=("split_img/$dt",rpm);
       dt=(--dt "split_img/$dt");
     fi;
     if [ -f *-unknown ]; then
-      unknown=`cat *-unknown`;           quotes "Unknown = $unknown";
+      unknown=`cat *-unknown`;           noquotes "Unknown = $unknown";
     fi;
     if [ -f *-header ]; then
       header=`ls *-header`;
@@ -296,13 +296,13 @@ fi;
 if [ "$imgtype" = "ELF" ] && [ ! "$header" -o ! "$repackelf" ]; then
   imgtype=AOSP;
   separator
-  quotes "Warning: ELF Format Without RPM Detected; will be Repacked using AOSP Format!";
+  noquotes "Warning: ELF Format Without RPM Detected; will be Repacked using AOSP Format!";
 fi;
 
 separator
 quotes "Building Image";
 separator
-quotes "Using Format: $imgtype";
+noquotes "Using Format: $imgtype";
 separator
 case $imgtype in
   AOSP_VNDR) "$bin/$arch/mkbootimg" --vendor_ramdisk "$ramdisk" "${dtb[@]}" --vendor_cmdline "$cmdline" --board "$board" --base $base --pagesize $pagesize --kernel_offset $kerneloff --ramdisk_offset $ramdiskoff --tags_offset $tagsoff --dtb_offset $dtboff --os_version "$osver" --os_patch_level "$oslvl" --header_version $hdrver --vendor_boot $outname;;
@@ -326,7 +326,7 @@ case $imgtype in
     esac;
     "$bin/$arch/mkimage" -A $uarch -O $os -T $type -C $comp -a $addr -e $ep -n "$name" -d "$part0""${part1[@]}" $outname >/dev/null;
   ;;
-  *) echo " "; quotes "Unsupported Format."; abort; exit 1;;
+  *) echo " "; noquotes "Unsupported Format."; abort; exit 1;;
 esac;
 if [ ! $? -eq "0" ]; then
   abort;
@@ -345,7 +345,7 @@ if [ -f split_img/*-sigtype ]; then
   fi;
   quotes "Signing New Image";
   separator
-  quotes "Using Signature: $sigtype $avbtype$avbtxt$blobtype";
+  noquotes "Using Signature: $sigtype $avbtype$avbtxt$blobtype";
   [ ! "$avbkey" ] && avbkey="$bin/avb/verity";
   separator
   case $sigtype in
@@ -373,18 +373,18 @@ if [ -f split_img/*-lokitype ]; then
   lokitype=`cat split_img/*-lokitype`;
   quotes "Loki Patching New Image";
   separator
-  quotes "Using Type: $lokitype";
+  noquotes "Using Type: $lokitype";
   separator
   mv -f image-new.img unlokied-new.img;
   if [ -f aboot.img ]; then
     "$bin/$arch/loki_tool" patch $lokitype aboot.img unlokied-new.img image-new.img >/dev/null;
     if [ ! $? -eq "0" ]; then
-      quotes "Patching Failed!";
+      noquotes "Patching Failed!";
       abort;
       exit 1;
     fi;
   else
-    quotes "Device aboot.img Required in Script Directory to Find Loki Patch Offset.";
+    noquotes "Device aboot.img Required in Script Directory to Find Loki Patch Offset.";
     abort;
     exit 1;
   fi;
@@ -403,7 +403,7 @@ if [ -f split_img/*-tailtype ]; then
   tailtype=`cat split_img/*-tailtype`;
   quotes "Appending Footer";
   separator
-  quotes "Using Type: $tailtype";
+  noquotes "Using Type: $tailtype";
   separator
   case $tailtype in
     Bump) awk 'BEGIN { printf "\x41\xA9\xE4\x67\x74\x4D\x1D\x1B\xA4\x29\xF2\xEC\xEA\x65\x52\x79" }' >> image-new.img;;
